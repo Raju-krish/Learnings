@@ -1,0 +1,192 @@
+1) process and difference between process and thread ?
+Answer:
+=======
+🔹 What is a Process?:
+---------------------
+	A process is a program in execution. It includes:
+	*)Code (text section): the actual program instructions.
+	*)Data: global variables and static data.
+	*)Heap: memory dynamically allocated during runtime.
+	*)Stack: contains function call history, local variables, return addresses.
+	*)Process Control Block (PCB): managed by the OS, holds information like:
+		*)Process ID (PID)
+		*)Scheduling information (priority, state: running/waiting/etc.)
+		*)Memory maps
+		*)File descriptors
+		*)I/O status
+	Each process is independent and is assigned its own memory space by the OS.
+	🧠 Example: Opening Chrome and Word creates two processes. They don't share memory — Chrome crashing doesn't crash Word.
+
+🔹 What is a Thread?
+--------------------
+	A thread is a smaller unit of execution within a process.A process can have one or more threads (multithreading).
+	All threads in a process share:
+	*)Code
+	*)Data segment
+	*)Heap
+	*)Open files
+	But each thread has its own:
+	*)Stack
+	*)Registers
+	*)Thread ID (TID)
+	Threads are managed by the Thread Control Block (TCB) in the OS or thread library (like pthreads or Java threads).
+
+	Shared
+
+🔧 Performance & Overhead
+🕒 Creation Time:
+----------------
+Process: Creating a new process involves allocating memory, copying address space, initializing PCB. It’s slow.
+Thread: Creating a thread is faster, since it reuses the process’s address space and only needs a new stack and TCB.
+
+🔁 Context Switching:
+---------------------
+Process Switching: OS must switch memory maps, which is expensive.
+Thread Switching: Less expensive; memory remains, only registers and stack are switched.
+
+
+✅ Summary Table:
+-----------------
+| Feature              | Process                           | Thread                             |
+| -------------------- | --------------------------------- | ---------------------------------- |
+| Isolation            | Full                              | Partial                            |
+| Memory Sharing       | No (requires IPC)                 | Yes (shared memory)                |
+| Crash Impact         | Affects only the crashing process | Can crash whole process            |
+| Creation Overhead    | High                              | Low                                |
+| Context Switch Cost  | High                              | Low                                |
+| Communication        | Complex                           | Simple                             |
+| Use in OS Scheduling | Scheduled independently           | Often scheduled as part of process |
+| Best For             | Isolation, Security               | Concurrency, Speed                 |
+
+======================================================================================================================================
+
+2) 🔹 Difference Between Multitasking and Multiprocessing ?
+
+Answer:
+
+Feature		  :		Multitasking											Multiprocessing
+Definition 	  :	The ability of the OS to run multiple tasks (programs) seemingly at the same time	The use of multiple processors (CPUs) to execute multiple processes simultaneously
+Scope		  :	General concept at the OS level							Hardware and OS-level concept
+Type		  :	Can be on a single processor (via time-sharing)			Requires multiple physical or logical CPUs
+Speed		  :	Slower, since a single CPU is shared					Faster, because processes run truly in parallel
+Example		  :	Typing in Word while listening to music					A server using 4 CPU cores to handle 4 requests simultaneously
+OS Involvement:	OS switches between tasks rapidly				OS manages and schedules on different processors
+Resource Usage:	One CPU, shared									Multiple CPUs used concurrently
+
+✅ Multitasking can be achieved on one CPU through context switching.
+✅ Multiprocessing needs more than one CPU core.
+=======================================================================================================================================
+
+3) 🔹 Difference Between Multitasking and Multithreading ?
+
+Answer:
+| Feature           | **Multitasking**                             | **Multithreading**                                   |
+| ----------------- | -------------------------------------------- | ---------------------------------------------------- |
+| **Definition**    | Running multiple programs at the same time   | Running **multiple threads within a single process** |
+| **Granularity**   | Process-level                                | Thread-level (inside a single process)               |
+| **Memory Space**  | Each task has separate memory                | Threads share memory space                           |
+| **Overhead**      | Higher (process creation/switching is heavy) | Lower (threads are lightweight)                      |
+| **Communication** | Inter-process communication needed           | Direct (shared memory)                               |
+| **Use Case**      | Running Chrome + Spotify + VS Code           | Chrome using threads for tab rendering + UI          |
+| **Dependency**    | Tasks/processes can be unrelated             | Threads are usually tightly coupled                  |
+
+✅ Multitasking: Task-level (program to program)
+✅ Multithreading: Task subdivision inside a single program
+=======================================================================================================================================
+
+4) How interrupt Works ?
+
+Answer:
+
+🔄 Step-by-Step: How an Interrupt Works
+Interrupt Request (IRQ):
+----------------------
+*)A device (keyboard, mouse, timer, disk, etc.) or software generates an interrupt request.
+*)CPU Pauses Execution
+*)The CPU saves its current state:
+*)Program Counter (PC)
+*)CPU registers
+*)Flags
+
+Interrupt Vector Table (IVT):
+----------------------------
+The CPU uses the interrupt vector table, a predefined memory table, to find the address of the appropriate ISR (Interrupt Service Routine) for that interrupt.
+
+ISR Executes:
+-------------
+The CPU jumps to the ISR and executes it to handle the interrupt (e.g., read keyboard input, handle a timer tick, etc.).
+
+Return from Interrupt:
+----------------------
+Once the ISR finishes, the CPU:
+*)Restores its previous state
+*)Resumes the original task exactly where it left off
+
+Diagram:
+--------
+[Device needs attention]
+         ↓
+  Sends interrupt to CPU
+         ↓
+[CPU pauses current task]
+         ↓
+[Saves current state]
+         ↓
+[Finds ISR from interrupt vector table]
+         ↓
+[Executes ISR]
+         ↓
+[Restores previous state]
+         ↓
+[Resumes original task]
+=======================================================================================================================================
+4)🔹 What is a Page Fault?
+
+Answer:
+A page fault occurs when a program tries to access a part of memory (a page) that is not currently loaded in RAM (physical memory). This triggers the operating system to bring the required page from secondary storage (usually a hard drive or SSD) into RAM.
+
+=======================================================================================================================================
+
+5) Mutex , semaphore and spin lock ?
+
+Answer:
+------
+
+🔐 1. Mutex (Mutual Exclusion):
+------------------------------
+🎯 Purpose:
+To make sure only one thread can access a critical section (shared resource) at a time.
+🧰 Use Case:
+Two or more threads want to modify the same variable (e.g., update a balance).
+Prevent race conditions by locking the resource.
+🧠 Example:
+A bank system where multiple threads try to update the same account balance. You use a mutex to lock that update so only one thread can do it at a time.
+
+🚦 2. Semaphore:
+----------------
+🎯 Purpose:
+To control access to a limited number of identical resources, or to signal between threads.
+🧰 Use Case:
+When you have N identical resources, and up to N threads can use them at once.
+Also used for thread signaling (e.g., make thread A wait until thread B finishes something).
+🧠 Example:
+You have 3 printers, and 10 threads want to print. You use a counting semaphore initialized to 3. Only 3 threads can print at the same time — others wait.
+
+🔄 3. Spinlock:
+---------------
+🎯 Purpose:
+To protect a critical section like a mutex, but instead of blocking, the thread keeps checking in a loop (spinning) until the lock is free.
+🧰 Use Case:
+Very short critical sections where you expect the lock to be released almost immediately.
+Used in low-level systems or multicore systems where blocking is too costly.
+🧠 Example:
+In an operating system kernel or embedded system, one thread holds a lock for 2 microseconds — using a spinlock avoids the overhead of sleeping and waking.
+
+🧾 Real-World Analogy:
+---------------------
+Concept		Real-World Analogy
+mutex		A toilet with a lock. Only one person (thread) can use it at a time. Others wait outside.
+Semaphore	A parking lot with 5 spots. Up to 5 cars (threads) can park. The rest must wait until a car leaves.
+Spinlock	Like shaking the bathroom door repeatedly to see if it’s open — not waiting patiently, just checking again and again
+
+=======================================================================================================================================

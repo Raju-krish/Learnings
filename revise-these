@@ -1,0 +1,49 @@
+1. Inter-Process Communication (IPC)
+We'll cover:
+
+	Pipes (anonymous and named)
+
+	Message Queues
+
+	Shared Memory (with semaphores for sync)
+
+	Sockets (UNIX domain and TCP/IP)
+
+	Signals
+
+2. Data Structures in C
+	We’ll implement and analyze:
+
+	Linked lists (single, double, circular)
+
+	Stacks and queues (array and linked list based)
+
+	Trees (binary, BST, AVL)
+
+	Hash tables (with collision handling)
+
+	Graphs (adjacency matrix/list)
+
+3. Function Pointers
+We'll cover:
+
+	Basics and syntax
+
+	Callbacks
+
+	Arrays of function pointers
+
+	Function pointer use in real-world systems (e.g., state machines, drivers, event dispatchers)
+
+4. Other Core C Concepts
+Including:
+
+	Memory management (malloc/free, leaks, fragmentation)
+
+	Structs with pointers
+
+	Bit manipulation
+	
+	File I/O (and mmap)
+
+	System calls and how they relate to user/kernel space
