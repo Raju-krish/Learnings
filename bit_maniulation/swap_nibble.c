@@ -1,16 +1,18 @@
-#include <stdio.h>
 
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 {
-    int a = 0x3e3e3e3e;                 // 00111110 00111110 
+    int a = 0x3e3e3e3e; 
     int right_nibble_mask = 0x0f0f0f0f; // 00001111
-    int right_nible = a & right_nibble_mask; // 00001110
-    a &= 0xf0f0f0f0; // 00110000 00110000
-    a >>= 4;
+    int left_nibble_mask = 0xf0f0f0f0;  // 11110000
+    
+    int right_nible = a & right_nibble_mask;
+    int left_nibble = a & left_nibble_mask;
+    
     right_nible <<= 4;
-    a |= right_nible;
+    left_nibble >>= 4;
+    a = left_nibble | right_nible;
+   
     printf("after swap = %x\n", a);
-
 }
-
