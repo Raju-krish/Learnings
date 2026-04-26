@@ -1,0 +1,87 @@
+#!/usr/bin/env bpftrace
+
+#include <linux/skbuff.h>
+#include <linux/if_ether.h>
+#include <linux/ip.h>
+#include <linux/udp.h>
+
+kprobe:eth_type_trans
+{
+    $skb = (struct sk_buff *)arg0;
+    $eth = (struct ethhdr *)$skb->data;
+
+ //NOTE :  replace your sender/source mac
+    if ($eth->h_source[0] == 0xaa &&
+        $eth->h_source[1] == 0xbb &&
+        $eth->h_source[2] == 0xcc &&
+        $eth->h_source[3] == 0xdd &&
+        $eth->h_source[4] == 0xee &&
+        $eth->h_source[5] == 0xff)
+    {
+        $p = (uint8 *)$skb->data;
+        printf("\n======================================\n");
+        printf("[L2] eth_type_trans  skb->data:%p  %d bytes\n", $skb->data, $skb->len);
+        printf("    %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[0],$p[1],$p[2],$p[3],$p[4],$p[5],$p[6],$p[7],$p[8],$p[9],$p[10],$p[11],$p[12],$p[13],$p[14],$p[15]);
+        printf("    %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[16],$p[17],$p[18],$p[19],$p[20],$p[21],$p[22],$p[23],$p[24],$p[25],$p[26],$p[27],$p[28],$p[29],$p[30],$p[31]);
+        printf("    %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[32],$p[33],$p[34],$p[35],$p[36],$p[37],$p[38],$p[39],$p[40],$p[41],$p[42],$p[43],$p[44],$p[45],$p[46],$p[47]);
+        printf("    %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[48],$p[49],$p[50],$p[51],$p[52],$p[53],$p[54],$p[55],$p[56],$p[57],$p[58],$p[59]);
+    }
+}
+
+kprobe:ip_rcv_core
+{
+    $skb = (struct sk_buff *)arg0;
+    $ip  = (struct iphdr *)$skb->data;
+
+    // NOTE : change your source ip in little endian like below
+    if ($ip->saddr == 0x3f06060a)
+    {
+        $p = (uint8 *)$skb->data;
+        printf("\n[L3] ip_rcv_core     skb->data:%p  %d bytes\n", $skb->data, $skb->len);
+        printf("    %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[0],$p[1],$p[2],$p[3],$p[4],$p[5],$p[6],$p[7],$p[8],$p[9],$p[10],$p[11],$p[12],$p[13],$p[14],$p[15]);
+        printf("    %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[16],$p[17],$p[18],$p[19],$p[20],$p[21],$p[22],$p[23],$p[24],$p[25],$p[26],$p[27],$p[28],$p[29],$p[30],$p[31]);
+        printf("    %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[32],$p[33],$p[34],$p[35],$p[36],$p[37],$p[38],$p[39],$p[40],$p[41],$p[42],$p[43],$p[44],$p[45]);
+    }
+}
+
+kprobe:__udp4_lib_rcv
+{
+    $skb   = (struct sk_buff *)arg0;
+    $udp   = (struct udphdr *)$skb->data;
+    $dport = bswap($udp->dest) & 0xffff;
+
+    if ($dport == 2223)
+    {
+        $p = (uint8 *)$skb->data;
+        printf("\n[L4] __udp4_lib_rcv  skb->data:%p  %d bytes\n", $skb->data, $skb->len);
+        printf("    %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[0],$p[1],$p[2],$p[3],$p[4],$p[5],$p[6],$p[7],$p[8],$p[9],$p[10],$p[11],$p[12],$p[13],$p[14],$p[15]);
+        printf("    %02x %02x %02x %02x %02x %02x %02x\n",
+               $p[16],$p[17],$p[18],$p[19],$p[20],$p[21],$p[22]);
+
+        /* ---- capture payload (kernel ptr, always readable) into map ---- */
+        @payload = buf($skb->data + 8, 15);
+    }
+}
+
+tracepoint:syscalls:sys_enter_recvfrom
+/comm == "receiver"/
+{ @buf[tid] = args->ubuf; }
+
+tracepoint:syscalls:sys_exit_recvfrom
+/comm == "receiver" && args->ret == 15/
+{
+    printf("\n[APP] recvfrom userspace  %d bytes\n", args->ret);
+ //   printf("      string : %s\n", str(@buf[tid]));   /* str() uses bpf_probe_read_user_str — works */
+    printf("data:   %r\n", @payload);                 /* kernel-captured payload — no userspace ptr */
+    printf("======================================\n\n");
+    delete(@buf[tid]);
+    delete(@payload);
+}
