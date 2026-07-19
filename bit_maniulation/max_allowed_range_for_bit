@@ -1,0 +1,4 @@
+Unsigned: Uses all n bits for the value.
+Range: 0 to 2^n - 1
+Signed (two's complement): Uses one bit for the sign.
+Range: -2^(n-1) to 2^(n-1) - 1
