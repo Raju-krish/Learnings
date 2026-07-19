@@ -1,0 +1,21 @@
+Need IPC
+   │
+   ├── Need to share the same memory?
+   │          │
+   │          └── Shared Memory + Mutex/Semaphore
+   │
+   ├── Need to send commands/events?
+   │          │
+   │          └── Message Queue / D-Bus / IARM
+   │
+   ├── Client-Server on same machine?
+   │          │
+   │          └── UNIX Domain Socket
+   │
+   ├── Client-Server on different machines?
+   │          │
+   │          └── TCP Socket
+   │
+   └── Parent-Child simple communication?
+              │
+              └── Pipe
