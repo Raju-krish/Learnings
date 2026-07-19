@@ -1,4 +1,4 @@
-Need IPC
+<img width="1206" height="3539" alt="image" src="https://github.com/user-attachments/assets/0b0bc439-5526-4da3-88b5-15aec6da5009" />Need IPC
    │
    ├── Need to share the same memory?
    │          │
@@ -19,3 +19,5 @@ Need IPC
    └── Parent-Child simple communication?
               │
               └── Pipe
+
+
