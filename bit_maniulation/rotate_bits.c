@@ -30,3 +30,29 @@ int main()
 
     return 0;
 }
+
+
+
+
+===================
+    #include <stdio.h>
+
+int main()
+{
+    unsigned int num;
+    int n;
+
+    printf("Enter the number: ");
+    scanf("%u", &num);
+
+    printf("Enter number of positions to rotate left: ");
+    scanf("%d", &n);
+
+    n = n % 32;   // Handle rotations greater than 31
+
+    unsigned int result = (num << n) | (num >> (32 - n));
+
+    printf("Result = %u\n", result);
+
+    return 0;
+}
