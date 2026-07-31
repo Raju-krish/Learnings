@@ -26,3 +26,32 @@ int main(int argc, char *argv[])
     }
     pthread_mutex_destroy(&mutex);
 }
+
+
+==========================
+    #include <stdio.h>
+#include <pthread.h>
+
+// Function executed by the thread
+void *thread_function(void *arg)
+{
+    printf("Hello from the thread!\n");
+    return NULL;
+}
+
+int main()
+{
+    pthread_t tid;
+
+    // Create a new thread
+    pthread_create(&tid, NULL, thread_function, NULL);
+
+    printf("Hello from the main thread!\n");
+
+    // Wait for the thread to finish
+    pthread_join(tid, NULL);
+
+    printf("Thread has finished.\n");
+
+    return 0;
+}
