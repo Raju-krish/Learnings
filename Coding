@@ -1,0 +1,12 @@
+| Topic     | Must be able to implement          |
+| --------- | ---------------------------------- |
+| Array     | insert, delete, search, sort       |
+| String    | reverse, palindrome, frequency     |
+| Singly LL | insert, delete, reverse            |
+| Doubly LL | insert, delete, traversal          |
+| Stack     | array + linked list                |
+| Queue     | array + linked list                |
+| Hash Map  | insert, search, delete + collision |
+| Tree      | traversal, search                  |
+| Sorting   | bubble, selection, insertion       |
+| Searching | linear, binary                     |
