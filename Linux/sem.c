@@ -1,44 +1,46 @@
 #include <stdio.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <sys/stat.h>
+#include <pthread.h>
 #include <semaphore.h>
+#include <unistd.h>
 
-typedef struct
+sem_t sem;
+
+void *worker(void *arg)
 {
-    int counter;
-} SharedData;
+    int id = *(int *)arg;
+
+    printf("Thread %d waiting for semaphore\n", id);
+
+    sem_wait(&sem);
+
+    printf("Thread %d entered critical section\n", id);
+
+    sleep(2);
+
+    printf("Thread %d leaving critical section\n", id);
+
+    sem_post(&sem);
+
+    return NULL;
+}
 
 int main()
 {
-    int fd = shm_open("/my_shm", O_CREAT | O_RDWR, 0666);
+    pthread_t t1, t2;
 
-    # Changes the size of the file associated with fd to exactly sizeof(SharedData) bytes.
-    ftruncate(fd, sizeof(SharedData));
+    int id1 = 1;
+    int id2 = 2;
 
-    # Maps that size into your process's address space Your code → initializes/uses the data.
-    SharedData *data = mmap(NULL,
-                            sizeof(SharedData),
-                            PROT_READ | PROT_WRITE,
-                            MAP_SHARED,
-                            fd,
-                            0);
+    // Initial value = 1
+    sem_init(&sem, 0, 1);
 
-    sem_t *sem = sem_open("/my_sem", O_CREAT, 0666, 1);
+    pthread_create(&t1, NULL, worker, &id1);
+    pthread_create(&t2, NULL, worker, &id2);
 
-    data->counter = 0;
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
 
-    while (1)
-    {
-        sem_wait(sem);
+    sem_destroy(&sem);
 
-        data->counter++;
-
-        printf("Producer : %d\n", data->counter);
-
-        sem_post(sem);
-
-        sleep(1);
-    }
+    return 0;
 }
