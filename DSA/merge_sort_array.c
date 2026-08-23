@@ -3,6 +3,69 @@
 
 /* It's teh recursive approach */
 
+Method 1
+--------
+
+void merge(int arr[], int low, int mid, int high)
+{
+    int temp[100];
+    int i = low;
+    int j = mid + 1;
+    int k = 0;
+
+    // Compare elements from both halves
+    while (i <= mid && j <= high)
+    {
+        if (arr[i] < arr[j])
+            temp[k++] = arr[i++];
+        else
+            temp[k++] = arr[j++];
+    }
+
+    // Copy remaining elements from left half
+    while (i <= mid)
+        temp[k++] = arr[i++];
+
+    // Copy remaining elements from right half
+    while (j <= high)
+        temp[k++] = arr[j++];
+
+    // Copy back to original array
+    for (i = low, k = 0; i <= high; i++, k++)
+        arr[i] = temp[k];
+}
+
+void mergeSort(int arr[], int low, int high)
+{
+    if (low >= high)
+        return;
+
+    int mid = (low + high) / 2;
+
+    // Divide
+    mergeSort(arr, low, mid);
+    mergeSort(arr, mid + 1, high);
+
+    // Merge
+    merge(arr, low, mid, high);
+}
+
+int main()
+{
+    int arr[] = {5, 8, 3, 2, 1};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    mergeSort(arr, 0, n - 1);
+
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+
+    return 0;
+}
+
+==============================================================================================
+Method 2:
+----------
 void merge(int **arr, int low, int mid, int high)
 {
     int *temp = malloc(sizeof(int)*(high-low)+1);
