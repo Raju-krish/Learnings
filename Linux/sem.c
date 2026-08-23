@@ -14,8 +14,10 @@ int main()
 {
     int fd = shm_open("/my_shm", O_CREAT | O_RDWR, 0666);
 
+    # Changes the size of the file associated with fd to exactly sizeof(SharedData) bytes.
     ftruncate(fd, sizeof(SharedData));
 
+    # Maps that size into your process's address space Your code → initializes/uses the data.
     SharedData *data = mmap(NULL,
                             sizeof(SharedData),
                             PROT_READ | PROT_WRITE,
